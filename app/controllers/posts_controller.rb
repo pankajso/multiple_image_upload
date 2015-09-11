@@ -10,11 +10,13 @@ class PostsController < ApplicationController
   # GET /posts/1
   # GET /posts/1.json
   def show
+    @post_attachments = @post.post_attachments.all
   end
 
   # GET /posts/new
   def new
     @post = Post.new
+    @post_attachment = @post.post_attachments.build
   end
 
   # GET /posts/1/edit
@@ -26,15 +28,16 @@ class PostsController < ApplicationController
   def create
     @post = Post.new(post_params)
 
-    respond_to do |format|
-      if @post.save
-        format.html { redirect_to @post, notice: 'Post was successfully created.' }
-        format.json { render :show, status: :created, location: @post }
-      else
-        format.html { render :new }
-        format.json { render json: @post.errors, status: :unprocessable_entity }
-      end
-    end
+   respond_to do |format|
+     if @post.save
+       params[:post_attachments]['photo'].each do |a|
+          @post_attachment = @post.post_attachments.create!(:photo => a)
+       end
+       format.html { redirect_to @post, notice: 'Post was successfully created.' }
+     else
+       format.html { render action: 'new' }
+     end
+   end
   end
 
   # PATCH/PUT /posts/1
@@ -69,6 +72,6 @@ class PostsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def post_params
-      params.require(:post).permit(:title)
+      params.require(:post).permit(:title, post_attachments_attributes: [:id, :post_id, :photo])
     end
 end

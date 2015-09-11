@@ -1,15 +1,12 @@
-= form_for(@post) do |f|
-  - if @post.errors.any?
-    #error_explanation
-      %h2
-        = pluralize(@post.errors.count, "error")
-        prohibited this post from being saved:
-      %ul
-        - @post.errors.full_messages.each do |message|
-          %li= message
+= form_for(@post, :html => { :multipart => true }) do |f|
   .field
     = f.label :title
     %br/
     = f.text_field :title
+  = f.fields_for :post_attachments do |p|
+    .field
+      = p.label :photo
+      %br/
+      = p.file_field :photo, :multiple => true, name: "post_attachments[photo][]"
   .actions
     = f.submit
